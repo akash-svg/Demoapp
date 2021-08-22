@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">DemoApp</string>
+    
+    <string-array name="SelectItem">
+        <item>Background Remove</item>
+        <item>Retouch</item>
+        <item>Image Filtering</item>
+
+    </string-array>
 </resources>
