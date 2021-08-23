@@ -1,53 +1,40 @@
-package com.example.demoapp;
+package com.example.demoApp;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.single.PermissionListener;
-import com.theartofdev.edmodo.cropper.CropImage;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
-import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     String[] arr = { "Background Remove","Image Retouching","Logo Design","Banner Design","Business card design"};
@@ -57,11 +44,14 @@ public class MainActivity extends AppCompatActivity {
     Button sendBtn;
     ImageView imageView;
 
-    private FirebaseDatabase db = FirebaseDatabase.getInstance();
-    private DatabaseReference root = db.getReference().child("user");
+//    private FirebaseDatabase db = FirebaseDatabase.getInstance();
+//    private DatabaseReference root = db.getReference().child("user");
 
     //private FirebaseStorage storage;
     StorageReference storageReference;
+    String image_name;
+    private DatabaseReference dref;
+    String currentTime,currentDate;
 
 
 
@@ -115,15 +105,39 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String your_name=name.getEditText().getText().toString();
-
-
                 String image_editing_item=item_name.getEditText().getText().toString();
-                Toast.makeText(MainActivity.this,your_name + image_editing_item,Toast.LENGTH_LONG).show();
+                currentDate = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(new Date());
+                currentTime = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+                if (your_name.length() == 0) {
+                    name.setError("Please Enter Your Medicine Name!");
+                } else if (image_editing_item.length() == 0) {
+                    item_name.setError("Please Enter Your Address!");
+                }
+                else {
+                    FirebaseDatabase database = FirebaseDatabase.getInstance();
+                    DatabaseReference myRef = database.getReference("message");
+                    myRef.setValue("Hello, World!");
+//                    dref = FirebaseDatabase.getInstance().getReference().child("orders").child("Image_item");
+////                    try {
+////                        uploadImage();
+////                    } catch (Exception e) {
+////                        image_name = "user Does not capture prescription";
+////                    }
+//                    HashMap<String, Object> medCorner = new HashMap<>();
+////                    medCorner.put("Image", image_name);
+//                    medCorner.put("User Name", "your_name");
+//                    medCorner.put("Image Item", "image_editing_item");
+//                    dref.updateChildren(medCorner);
+                    Toast.makeText(MainActivity.this,your_name + image_editing_item,Toast.LENGTH_LONG).show();
+                }
+
 
             }
         });
 
     }
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
     {
@@ -152,9 +166,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void uploadImage() {
+        if (filepath !=null){
+
+            ProgressDialog progressDialog
+                    = new ProgressDialog(getApplicationContext());
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+            image_name = name.getEditText().getText().toString()+"_"+item_name.getEditText().getText().toString()+"_"+currentDate+"_"+currentTime;
+            StorageReference ref = storageReference.child("imageItem/"+image_name);
+            ref.putFile(filepath)
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            //do nothing
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(),"Image Uploaded!!", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getApplicationContext(), "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onProgress(@NonNull UploadTask.TaskSnapshot taskSnapshot) {
+                    double progress
+                            = (100.0 * taskSnapshot.getBytesTransferred() / taskSnapshot.getTotalByteCount());
+                    progressDialog.setMessage("Uploaded " + (int)progress + "%");
+                }
+            });
+        }
 
 
-
-
+    }
 
 }
