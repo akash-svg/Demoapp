@@ -23,6 +23,7 @@
         tools:ignore="MissingConstraints">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/noto_sans"
@@ -47,6 +48,7 @@
         android:layout_below="@id/textInputLayout">
 
         <AutoCompleteTextView
+            android:id="@+id/autoCompleteText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Select Item"
@@ -92,7 +94,7 @@
 
     </RelativeLayout>
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/sendBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
