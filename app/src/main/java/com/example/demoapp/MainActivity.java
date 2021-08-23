@@ -34,6 +34,10 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionDeniedResponse;
@@ -52,6 +56,15 @@ public class MainActivity extends AppCompatActivity {
     TextInputLayout name,item_name;
     Button sendBtn;
     ImageView imageView;
+
+    private FirebaseDatabase db = FirebaseDatabase.getInstance();
+    private DatabaseReference root = db.getReference().child("user");
+
+    //private FirebaseStorage storage;
+    StorageReference storageReference;
+
+
+
 //    private static final int PICK_IMAGE_REQUEST = 1888;
 //    private static final int MY_PERMISSION_CONSTANT = 5;
     private Uri filepath;
@@ -92,10 +105,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //firebase
+        storageReference=FirebaseStorage.getInstance().getReference();
+        //storageReference = storage.getReference();
+
+
         sendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String your_name=name.getEditText().getText().toString();
+
+
                 String image_editing_item=item_name.getEditText().getText().toString();
                 Toast.makeText(MainActivity.this,your_name + image_editing_item,Toast.LENGTH_LONG).show();
 
